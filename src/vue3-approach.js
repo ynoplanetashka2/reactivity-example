@@ -2,6 +2,8 @@
 
 const { Triggerable } = require('./triggerable')
 
+const VUE_GLOBAL_OBJECT = new WeakMap()
+
 /**
  * example of reactive object from vue3.
  * it pretty simplified. most important simplification: nested proxing ommited.
@@ -15,6 +17,10 @@ function proxyObject(object) {
      * @type {Map<string, InstanceType<typeof Triggerable>>}
      */
     const triggersMapping = new Map()
+    VUE_GLOBAL_OBJECT.set(object, triggersMapping)
+    for (const key in object) {
+        triggersMapping.set(key, new Triggerable())
+    }
     return new Proxy(object, {
         get(target, property) {
             return Reflect.get(target, property)
@@ -39,5 +45,6 @@ function proxyObject(object) {
 }
 
 module.exports = {
-    proxyObject
+    proxyObject,
+    VUE_GLOBAL_OBJECT
 }

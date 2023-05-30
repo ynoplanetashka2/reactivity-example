@@ -2,6 +2,7 @@
 
 const { Triggerable } = require('./triggerable')
 
+const VUE_GLOBAL_OBJECT = new WeakMap()
 /**
  * example of reactive object from vue2.
  * it pretty simplified. most important simplification: nested proxing ommited.
@@ -11,6 +12,10 @@ const { Triggerable } = require('./triggerable')
 function proxyAllProperties(object) {
     for (const key in object) {
         const propertyTrigger = new Triggerable()
+        VUE_GLOBAL_OBJECT.set(object, {
+            key,
+            value: propertyTrigger
+        })
         let propertyValue = object[key]
         Object.defineProperty(object, key, {
             get: () => propertyValue,
@@ -23,5 +28,6 @@ function proxyAllProperties(object) {
 }
 
 module.exports = {
-    proxyAllProperties
+    proxyAllProperties,
+    VUE_GLOBAL_OBJECT
 }
